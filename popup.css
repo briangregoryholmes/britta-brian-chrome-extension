@@ -1,6 +1,9 @@
 .container {
   width: 280px;
   color: #314d3e;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .title {
@@ -50,4 +53,18 @@
 .bookmark-controls {
   flex: auto;
   text-align: right;
+}
+
+.favicon {
+  width: 32px;
+  height: 32px;
+}
+
+.favicon:hover {
+  cursor: pointer;
+}
+
+.dupe-wrapper {
+  display: flex;
+  gap: 5px;
 }
