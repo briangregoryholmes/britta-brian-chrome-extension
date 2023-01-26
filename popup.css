@@ -1,15 +1,85 @@
-.container {
-  width: 280px;
-  color: #314d3e;
+@import url('https://fonts.googleapis.com/css2?family=Alata&family=Lobster&display=swap');
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  font-family: 'Alata';
+}
+
+html, body {
+  height: 100%;
+  background-color: hsl(36, 50%, 92%)
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 5px;
 }
 
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+#root, #__next {
+  isolation: isolate;
+}
+
+span {
+  line-height: 26px;
+  font-size: 30px;
+}
+
+h4 {
+  text-align: center;
+  font-weight: thin;
+}
+
+
+.container {
+  width: 280px;
+  color: #355745;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border-radius: 20px;
+  padding: 10px;
+  height: fit-content;
+}
+
 .title {
-  font-size: 14px;
+  font-family: 'Lobster';
+  font-size: 20px;
   font-weight: bold;
-  padding: 8px;
+  text-align: center;
+  align-items: center;
+  display: flex;
+}
+
+.slogan {
+  margin-top: -4px;
+}
+
+.title-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .textbox {
@@ -24,47 +94,78 @@
   border-color: #66afe9;
 }
 
-.bookmarks {
-  margin: 5px 5px;
-  padding: 3px;
-}
-
-.bookmark {
-  display: flex;
-  border-bottom-color: #00254d;
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  border-radius: 0.8rem;
-  padding: 3px;
-  padding-bottom: 7px;
-  margin-bottom: 7px;
-}
-
-.bookmark-title {
-  padding-left: 2px;
-}
-
-.bookmark-controls img {
-  margin: 0 4px;
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-.bookmark-controls {
-  flex: auto;
-  text-align: right;
-}
-
 .favicon {
-  width: 32px;
-  height: 32px;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  
+  
+  
+  
+  position: relative;
 }
 
-.favicon:hover {
+.dupe-wrapper:hover {
   cursor: pointer;
+  transform: scale(1.05);
 }
 
 .dupe-wrapper {
+  padding:4px; 
   display: flex;
+  border: solid 1px rgba(157, 133, 72, 0.78);
+  box-shadow: 0 0 5px rgba(61, 42, 15, 0.5);
+  transition: all .5s;
+  background-color: white;
+  border-radius: 8px; 
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+}
+
+.open-flag {
+  font-size: .5rem;
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 2px;
+  display: flex;
+  color: white;
+  height: .75rem;
+  position: absolute;
+  bottom: 0px;
+  border-top: solid .5px rgba(230, 210, 157, 0.592);
+  background-color:rgba(220, 216, 211, 0.729);
+  backdrop-filter: blur(4px);
+}
+
+.open-flag p {
+  text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.616);
+}
+
+button {
+  background-color: hsl(37, 85%, 70%);
+  border: none;
+  border-radius: 25px;
+  padding: 5px;
+  width: 60%;
+  margin: 0 auto;
+  color: hsl(40, 40%, 100%);
+  font-weight: bold;
+  margin-top: 5px;
+}
+button:hover {
+  cursor: pointer;
+  background-color: hsl(37, 100%, 80%);
+}
+
+.icons {
+  display: flex;
+  flex-wrap: wrap;
   gap: 5px;
+  justify-content: center;
 }

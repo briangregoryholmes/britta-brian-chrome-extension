@@ -1,146 +1,74 @@
-// import { getActiveTabURL } from "./utils.js";
-
-// const addNewBookmark = (bookmarks, bookmark) => {
-//   const bookmarkTitleElement = document.createElement("div");
-//   const controlsElement = document.createElement("div");
-//   const newBookmarkElement = document.createElement("div");
-
-//   bookmarkTitleElement.textContent = bookmark.desc;
-//   bookmarkTitleElement.className = "bookmark-title";
-//   controlsElement.className = "bookmark-controls";
-
-//   setBookmarkAttributes("play", onPlay, controlsElement);
-//   setBookmarkAttributes("delete", onDelete, controlsElement);
-
-//   newBookmarkElement.id = "bookmark-" + bookmark.time;
-//   newBookmarkElement.className = "bookmark";
-//   newBookmarkElement.setAttribute("timestamp", bookmark.time);
-
-//   newBookmarkElement.appendChild(bookmarkTitleElement);
-//   newBookmarkElement.appendChild(controlsElement);
-//   bookmarks.appendChild(newBookmarkElement);
-// };
-
-// const viewBookmarks = (currentBookmarks=[]) => {
-//   const bookmarksElement = document.getElementById("bookmarks");
-//   bookmarksElement.innerHTML = "";
-
-//   if (currentBookmarks.length > 0) {
-//     for (let i = 0; i < currentBookmarks.length; i++) {
-//       const bookmark = currentBookmarks[i];
-//       addNewBookmark(bookmarksElement, bookmark);
-//     }
-//   } else {
-//     bookmarksElement.innerHTML = '<i class="row">No bookmarks to show</i>';
-//   }
-
-//   return;
-// };
-
-// const onPlay = async e => {
-//   const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
-//   const activeTab = await getActiveTabURL();
-
-//   chrome.tabs.sendMessage(activeTab.id, {
-//     type: "PLAY",
-//     value: bookmarkTime,
-//   });
-// };
-
-// const onDelete = async e => {
-//   const activeTab = await getActiveTabURL();
-//   const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
-//   const bookmarkElementToDelete = document.getElementById(
-//     "bookmark-" + bookmarkTime
-//   );
-
-//   bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete);
-
-//   chrome.tabs.sendMessage(activeTab.id, {
-//     type: "DELETE",
-//     value: bookmarkTime,
-//   }, viewBookmarks);
-// };
-
-// const setBookmarkAttributes =  (src, eventListener, controlParentElement) => {
-//   const controlElement = document.createElement("img");
-
-//   controlElement.src = "assets/" + src + ".png";
-//   controlElement.title = src;
-//   controlElement.addEventListener("click", eventListener);
-//   controlParentElement.appendChild(controlElement);
-// };
-
-// document.addEventListener("DOMContentLoaded", async () => {
-//   const activeTab = await getActiveTabURL();
-//   const queryParameters = activeTab.url.split("?")[1];
-//   const urlParameters = new URLSearchParams(queryParameters);
-
-//   const currentVideo = urlParameters.get("v");
-
-//   if (activeTab.url.includes("youtube.com/watch") && currentVideo) {
-//     chrome.storage.sync.get([currentVideo], (data) => {
-//       const currentVideoBookmarks = data[currentVideo] ? JSON.parse(data[currentVideo]) : [];
-
-//       viewBookmarks(currentVideoBookmarks);
-//     });
-//   } else {
-//     const container = document.getElementsByClassName("container")[0];
-
-//     container.innerHTML = '<div class="title">CODESMITH</div>';
-//   }
-// });
-
-
 chrome.windows.getAll({populate:true}, getAllOpenWindows);
 
 function getAllOpenWindows(winData) {
   let tabCount = {};
 
-  function closeTab(idArray) {
+  function closeTabs(idArray) {
     chrome.tabs.remove(idArray, () => {
       const favIconToRemove = document.getElementById(idArray[0]);
       favIconToRemove.remove();
-      console.log(favIconToRemove)
     });
   }
-  // chrome.tabs.remove(
-  //   tabIds: number | number[],
-  //   callback?: function,
-  // )
 
-  winData[0].tabs.forEach(tab => {
-    if (tabCount[tab.url]) {
-      tabCount[tab.url] = [...tabCount[tab.url], tab.id]
+  winData[0].tabs.forEach(({url, favIconUrl, id}) => {
+    if (tabCount[url]) {
+      const openTabsArray = tabCount[url].openTabs;
+      tabCount[url].openTabs = [...openTabsArray, id]
     } else {
-      tabCount[tab.url] = [tab.id];
+      tabCount[url] = {"iconUrl": favIconUrl, "openTabs": [id]};
     }
-    
+  })
 
-    if (tabCount[tab.url].length > 1) {
-      console.log(tabCount[tab.url])
+  //Sort tabs button
+  const button = document.createElement('button');
+  button.innerText = "Sort Tabs";
+  button.addEventListener('click', () => sortTabs(winData[0].tabs))
+  document.querySelector('.container').appendChild(button); 
+  
+  function sortTabs(unsorted) {
+    //Copy array for readability
+    const sortedTabs = [...unsorted]
+
+    //Sort array
+    sortedTabs.sort(function (a, b) {
+      if (a.url < b.url) {
+        return -1;
+      }
+      if (a.url > b.url) {
+        return 1;
+      }
+      return 0;
+    })
+
+    //Move tabs
+    sortedTabs.forEach((tabObject, index) => {
+      chrome.tabs.move(tabObject.id, {index})
+    })
+  }
+
+  for (let url in tabCount) {
+    const page = tabCount[url];
+
+    if (page.openTabs.length > 1) {
       const duplicateWrapper = document.createElement('div')
       duplicateWrapper.setAttribute('class', 'dupe-wrapper')
+      duplicateWrapper.setAttribute('id', page.openTabs[1])
 
-      const closeAllLabel = document.createElement('p');
-      closeAllLabel.innerText = "Click to close duplicates";
-
+      const openFlag = document.createElement('div')
+      const openFlagText = document.createElement('p')
+      openFlag.setAttribute('class', 'open-flag')
+      openFlagText.innerText = page.openTabs.length - 1 + " EXTRA";
+      openFlag.appendChild(openFlagText)
 
       const favIcon = document.createElement('img')
-      favIcon.setAttribute('src', tab.favIconUrl)
+      favIcon.setAttribute('src', page.iconUrl || 'https://images.emojiterra.com/google/noto-emoji/v2.034/512px/1f37b.png')
       favIcon.setAttribute('class', 'favicon')
-      favIcon.setAttribute('id', tab.id)
-      // favIcon.display.style.width = '50px'
-      // favIcon.display.style.height = '50px
-      favIcon.addEventListener('click', () => closeTab(tabCount[tab.url].slice(1)));
+
+      favIcon.addEventListener('click', () => closeTabs(page.openTabs.slice(1)));
 
       duplicateWrapper.appendChild(favIcon)
-      duplicateWrapper.appendChild(closeAllLabel)
-
-      document.querySelector('.container').appendChild(duplicateWrapper)
-      console.log(tab.favIconUrl)
+      duplicateWrapper.appendChild(openFlag)
+      document.querySelector('.icons').appendChild(duplicateWrapper)
     }
-    
-  })
-  console.log(tabCount)
+  }
 }

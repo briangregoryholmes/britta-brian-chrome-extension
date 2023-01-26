@@ -9,11 +9,3 @@
 //     });
 //   }
 // });
-
-chrome.windows.getAll({populate:true}, getAllOpenWindows);
-
-function getAllOpenWindows(winData) {
-  winData[0].tabs.forEach(tab => {
-    console.log(tab.favIconUrl)
-  })
-}
